@@ -39,8 +39,8 @@
     </div>
     <div class="flexAlerts">
         <div id="alertsDisplay" class="fadeMiddle">
-            <h1 id="alertsDisplayTitle"></h1>
-            <p id="alertsDisplayInfo"></p>
+            <h1 id="alertsDisplayTitle">Yo Matt</h1>
+            <p id="alertsDisplayInfo">Lots of information goes here</p>
         </div>
         <div id="rainDisplay" class="fadeMiddle">
             <h1 id="rainDisplayTitle">Possible Precipitation</h1>
@@ -76,16 +76,17 @@
     <div id="searchLocation" class="fadeMiddle">
         <h4 id="errorText"></h4>
         <div id="searchLocationDetails">
-        <div id="flexContainer">
-            <div id="flexContainer" class="flexLeft">
-                <h2 id="searchLocationTitle"></h2>
-                <img alt="Search Location Image" id="searchLocationImg" src="">
+        <div id="flexContainer" class="searchFlexContainer">
+            <div id="flexContainer" class="searchLocationFlexColumn flexLeft">
+                <div id="flexContainer">
+                    <h2 id="searchLocationTitle"></h2>
+                    <img alt="Search Location Image" id="searchLocationImg" src="">
+                </div>
+                <h1 id="searchLocationTemp"></h1>
+                <h3 id="searchLocationInfo"></h3>
             </div>
             <img alt="Close Icon" id="closeSearch" src="/images/closeLogo.svg">
         </div>
-
-            <h1 id="searchLocationTemp"></h1>
-            <h3 id="searchLocationInfo"></h3>
             <div class="flexForecast searchForecast">
                 <div class="forecasts">
                     <div id="searchHourlyForecastSection" class="fadeMiddle">

@@ -476,6 +476,6 @@ function displayedAlerts() {
     }
 };
 
-window.addEventListener('resize', displayedAlerts());
+window.addEventListener('resize', displayedAlerts);
 
 document.getElementById('footerInfo').innerText = '©Matt Sullivan - ' + new Date().getFullYear();
