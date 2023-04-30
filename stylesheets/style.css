@@ -21,7 +21,6 @@
 .fadeMiddle {
     opacity: 0;
     transition: all 0.2s;
-
 }
 .fadeUpShow,
 .fadeMiddleShow {
@@ -78,13 +77,18 @@ body {
     width: 4rem;
     height: auto;
 }
+.glass {
+    background: rgba(255, 255, 255, 0.2);
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+}
 #currentWeather {
     width: max-content;
     border-radius: 1.3rem;
     margin: 1.5rem 0 0 0;
     padding: 1.25rem;
-    background: var(--transparent-background);
-    box-shadow: 0 2px 32px 0 rgba(119, 119, 119, 0.163);
 }
 #flexContainer {
     display: flex;
@@ -124,7 +128,6 @@ body {
     margin: 1.5rem 0 0 0;
     border: 0.25rem solid var(--transparent-background);
     border-radius: 1.3rem;
-    box-shadow: 0 2px 32px 0 rgba(119, 119, 119, 0.163);
 }
 #alertsDisplay {
     width: 30%;
@@ -174,8 +177,6 @@ body {
 }
 .forecast {
     padding: 0;
-    background: var(--transparent-background);
-    box-shadow: 0 2px 32px 0 rgba(119, 119, 119, 0.163);
     grid-auto-flow: column;
     overflow-y: auto;
     margin: 1.5rem 0 0 0;
@@ -206,7 +207,7 @@ body {
     font-weight: 400;
 }
 #dailyForecast, #dailyForecast2 {
-    line-height: clamp(1rem, 1vw + 0.9rem, 1.4rem);
+    line-height: 1.4rem;
 }
 .forecast img {
     width: clamp(1rem, 1.3vw + 1rem, 2rem);
@@ -224,15 +225,12 @@ body {
     width: 25%;
     height: auto;
     margin: 1.5rem 0 0 0;
-    box-shadow: 0 2px 32px 0 rgba(119, 119, 119, 0.163);
 }
 canvas {
     border-radius: 1.3rem;
 }
 #searchBar {
     margin: 1.5rem 0 0 0;
-    background: rgba(255, 255, 255, 0.2);
-    box-shadow: 0 2px 32px 0 rgba(119, 119, 119, 0.163);
     border-radius: 100px;
     transition: 0.15s all;
 }
@@ -264,8 +262,8 @@ input {
 #searchLocation {
     display: none;
     margin: 1.5rem 0;
-    border: 0.25rem solid rgba(255, 255, 255, 0.20);
-    box-shadow: 0 2px 32px 0 rgba(119, 119, 119, 0.163);
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+    border: 3px solid rgba(255, 255, 255, 0.3);
     border-radius: 2.5rem;
 }
 #errorText {
@@ -286,12 +284,12 @@ input {
     gap: 0 !important;
 }
 #closeSearch {
-    transition: 0.25s ease-in-out;
+    transition: 0.1s ease;
     transform: scale(1.1);
     cursor: pointer;
 }
 #closeSearch:hover {
-    transform: scale(1.3);
+    transform: scale(1.2);
 }
 #searchLocationTitle {
     font-size: var(--medium-font-size);
@@ -319,7 +317,6 @@ input {
     width: 25%;
     height: auto;
     margin: 1.5rem 0 0 0;
-    box-shadow: 0 2px 32px 0 rgba(119, 119, 119, 0.163);
 }
 #infoPanel {
     position: fixed;
@@ -332,20 +329,26 @@ input {
     z-index: 2;
 }
 #closeInfoPanel {
-    margin: 1.5rem;
+    margin: 1.5rem 1.5rem 2rem 1.5rem;
     border-radius: 0.75rem;
     text-align: center;
-    font-size: calc(var(--small-font-size) * 1.05);
-    padding: 0.75rem;
+    font-size: calc(var(--small-font-size));
+    padding: 0.4rem;
     font-weight: 600;
     color: black;
     mix-blend-mode: screen;
     background: rgba(255, 255, 255, 0.6);
     cursor: pointer;
     transition: .2s all;
+    border: 2px solid transparent;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
 }
 #closeInfoPanel:hover {
-    background: rgba(255, 255, 255, 0.8);
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    color: var(--white);
 }
 #infoPanelImg {
     margin: 1.5rem 1.5rem 0 1.5rem;
@@ -387,12 +390,12 @@ input {
 #footerInfo {
     margin: 0;
     padding-bottom: 1.5rem;
-    font-size: var(--tiny-font-size);
+    font-size: calc(var(--tiny-font-size) * 0.9);
     font-weight: 400;
     color: rgba(255, 255, 255, 0.75);
 }
 
-@media screen and (orientation: portrait) and (max-width: 768px) {
+@media screen and (orientation: portrait) and (max-width: 850px) {
     :root {
         --small-font-size: clamp(1rem, 1vw + 0.9rem, 2rem);
         --medium-font-size: clamp(1rem, 1vw + 1.5rem, 3rem);
@@ -407,6 +410,8 @@ input {
         text-align: center;
         background: none;
         margin: clamp(2rem, 1.5vw + 1.5rem, 3rem) 0 0 0;
+        border: none;
+        box-shadow: none;
         padding: 0;
     }
     #flexContainer {
@@ -474,6 +479,9 @@ input {
     #hourlyForecast2 li {
         width: 17.5vw;
     }
+    #dailyForecast, #dailyForecast2 {
+        line-height: 1.5rem;
+    }
     #currentLocationMap {
         height: clamp(8rem, 8vw + 8rem, 15rem);
         margin: 0 5vw;
@@ -490,6 +498,7 @@ input {
     }
     input {
         padding: 0.75rem 0 0.75rem 0;
+        font-size: calc(var(--small-font-size) * 1.1);
     }
     #searchLogo {
         width: 1.3rem;
@@ -519,6 +528,10 @@ input {
     }
     #infoPanel {
         width: 100%;
+    }
+    #closeInfoPanel {
+        font-size: calc(var(--small-font-size) * 1.1);
+        padding: 0.65rem;
     }
     #infoPanelImg {
         width: clamp(2rem, 2.2vw + 2.2rem, 3rem);

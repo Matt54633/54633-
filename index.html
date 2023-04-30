@@ -28,7 +28,7 @@
         </circle>
         </svg>
     </div>
-    <div class="fadeMiddle" id="currentWeather">
+    <div class="fadeMiddle glass" id="currentWeather">
         <div id="flexContainer" class="flexCenter">
             <h1 id="currentLocation"> </h1>
             <img alt="Current location Image" id="currentIcon" src="">
@@ -38,11 +38,11 @@
         <h3 id="highLow"> </h3>
     </div>
     <div class="flexAlerts">
-        <div id="alertsDisplay" class="fadeMiddle">
+        <div id="alertsDisplay" class="fadeMiddle glass">
             <h1 id="alertsDisplayTitle"></h1>
             <p id="alertsDisplayInfo"></p>
         </div>
-        <div id="rainDisplay" class="fadeMiddle">
+        <div id="rainDisplay" class="fadeMiddle glass">
             <h1 id="rainDisplayTitle">Possible Precipitation</h1>
             <div id="rainChartContainer">
                 <canvas id="rainChart"></canvas>
@@ -56,9 +56,9 @@
     </div>
     <div class="flexForecast">
         <div class="forecasts">
-                <ul id="hourlyForecast" class="forecast">
+                <ul id="hourlyForecast" class="forecast glass">
                 </ul>
-                <ul id="dailyForecast" class="forecast">
+                <ul id="dailyForecast" class="forecast glass">
                 </ul>
         </div>
         <div id="currentLocationMap">
@@ -67,7 +67,7 @@
         </div>
     </div>
     
-    <div id="searchBar" class="fadeMiddle">
+    <div id="searchBar" class="fadeMiddle glass">
         <form id="flexContainer" class="flexSearch" method="post" onsubmit="return chosenLocation()">
             <input class="fadeMiddle" id="input" type="text" inputmode="search" autocomplete="off" placeholder="Search" onfocus='this.placeholder=""' onblur="this.placeholder =`Search`" autocomplete="off">
             <img alt="Search Logo" id="searchLogo" src="\images\search.svg">
@@ -90,12 +90,12 @@
             <div class="flexForecast searchForecast">
                 <div class="forecasts">
                     <div id="searchHourlyForecastSection" class="fadeMiddle">
-                        <ul id="hourlyForecast2" class="forecast searchLocationForecast">
+                        <ul id="hourlyForecast2" class="forecast searchLocationForecast glass">
                         </ul>
                     </div>
                    
                     <div id="searchDailyForecastSection" class="fadeMiddle">
-                        <ul id="dailyForecast2" class="forecast searchLocationForecast">
+                        <ul id="dailyForecast2" class="forecast searchLocationForecast glass">
                         </ul>
                     </div>
                 </div>
