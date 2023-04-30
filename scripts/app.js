@@ -31,7 +31,6 @@ function weather() {
         fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${x}&lon=${y}&appid=${apiKey}&units=metric`)
             .then(response => response.json()).then(data => {
                 const { name, weather } = data;
-
                 if (JSON.stringify(name).length > 17) {
                     document.getElementById('currentLocation').style.fontSize = "clamp(0.5rem, 1vw + 0.8rem, 1.8rem)";
                 }
@@ -95,12 +94,7 @@ function chosenLocation(previousSearch, previousCall) {
         .then(response => response.json()).then(data => {
             const { name, sys, cod } = data;
             if (cod != 200) {
-                document.getElementById('errorText').style.display = 'block';
-                document.getElementById('errorText').innerHTML = cod + " Error<br>Please search again.";
-                document.getElementById('searchLocationDetails').style.display = "none";
-                document.getElementById('searchLocationImg').style.display = "none";
-                document.getElementById('input').value = "";
-                document.getElementById('input').blur();
+                displayError(cod);
             } else {
                 console.log(`https://api.openweathermap.org/geo/1.0/direct?q=${searchLocation},${sys.country}&appid=${apiKey}`);
                 fetch(`https://api.openweathermap.org/geo/1.0/direct?q=${searchLocation},${sys.country}&appid=${apiKey}`)
@@ -475,7 +469,15 @@ function displayedAlerts() {
         rainDisplay.style.width = '70%';
     }
 };
-
 window.addEventListener('resize', displayedAlerts);
+
+function displayError(cod) {
+    document.getElementById('errorText').style.display = 'block';
+    document.getElementById('errorText').innerHTML = cod + " Error<br>Please search again.";
+    document.getElementById('searchLocationDetails').style.display = "none";
+    document.getElementById('searchLocationImg').style.display = "none";
+    document.getElementById('input').value = "";
+    document.getElementById('input').blur();
+}
 
 document.getElementById('footerInfo').innerText = '©Matt Sullivan - ' + new Date().getFullYear();

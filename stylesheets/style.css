@@ -345,8 +345,6 @@ input {
 }
 #closeInfoPanel:hover {
     background: rgba(255, 255, 255, 0.2);
-    backdrop-filter: blur(5px);
-    -webkit-backdrop-filter: blur(5px);
     border: 2px solid rgba(255, 255, 255, 0.3);
     color: var(--white);
 }
@@ -498,7 +496,7 @@ input {
     }
     input {
         padding: 0.75rem 0 0.75rem 0;
-        font-size: calc(var(--small-font-size) * 1.1);
+        font-size: calc(var(--small-font-size) * 1.05);
     }
     #searchLogo {
         width: 1.3rem;
