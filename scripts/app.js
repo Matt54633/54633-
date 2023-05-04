@@ -1,275 +1,233 @@
-let HourTitles = [],
-    currentHourImg = [],
-    currentHourConditions = [],
-    currentHourTemp = [],
-    currentHourInfo = [],
-    currentHourRain = [],
-    searchHourRain = [],
-    searchHourTemp = [],
-    searchHourImg = [],
-    searchHourInfo = [],
-    searchHourConditions = [],
-    DailyTitles = [],
-    currentDailyImg = [],
-    currentDailyConditions = [],
-    currentDailyTemp = [],
-    currentDailyInfo = [],
-    currentDailyRain = [],
-    searchDailyRain = [],
-    searchDailyTemp = [],
-    searchDailyImg = [],
-    searchDailyInfo = [],
-    searchDailyConditions = []
+const apiKey = '96ef4b80e6d934610538d335d0ab793e';
 
-const apiKey = "96ef4b80e6d934610538d335d0ab793e";
+let HourlyTitles = [];
+let DailyTitles = [];
+let hourlyRain = [];
+let dailyRain = [];
+let HourlyTemp = [];
+let HourlyConditions = [];
+let HourlyImg = [];
+let HourlyInfo = [];
+let DailyConditions = [];
+let DailyTemp = [];
+let DailyImg = [];
+let DailyInfo = [];
 
-
-function weather() {
-    navigator.geolocation.getCurrentPosition(function (position) {
-        let x = position.coords.latitude;
-        let y = position.coords.longitude;
+function weather(locationType, x, y) {
+    let mapCenter;
+    // get x and y coord
+    navigator.geolocation.getCurrentPosition(position => {
+        if (x == null || y == null) {
+            x = position.coords.latitude;
+            y = position.coords.longitude;
+        }
+        // get name of location using x and y coordinates
         fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${x}&lon=${y}&appid=${apiKey}&units=metric`)
             .then(response => response.json()).then(data => {
-                const { name, weather } = data;
-                if (JSON.stringify(name).length > 17) {
-                    document.getElementById('currentLocation').style.fontSize = "clamp(0.5rem, 1vw + 0.8rem, 1.8rem)";
+                var { name, weather, sys } = data;
+                document.getElementById(`${locationType}Location`).textContent = name;
+                document.getElementById(`${locationType}Icon`).src = `https://matt54633.com/weather/weatherIcons/${weather[0]["icon"]}.svg`;
+                if (locationType == "search") {
+                    localStorage.setItem('previousSearch', name + ", " + sys.country);
                 }
-                document.getElementById('currentLocation').textContent = name;
-                document.getElementById('currentIcon').src = `https://matt54633.com/weather/weatherIcons/${weather[0]["icon"]}.svg`;
-            });
-        console.log(`https://api.openweathermap.org/data/2.5/onecall?lat=${x}&lon=${y}&appid=${apiKey}&units=metric`);
+            })
+        // get weather data using x and y coordinates
         fetch(`https://api.openweathermap.org/data/2.5/onecall?lat=${x}&lon=${y}&appid=${apiKey}&units=metric`)
             .then(response => response.json()).then(data => {
-                const { current, hourly, daily, minutely, alerts } = data;
+                var { current, hourly, daily, minutely, alerts } = data;
+                // create list items
                 displayAlerts(alerts);
-                rainDisplay(minutely);
-                displayedAlerts();
-                createListItems("hourlyForecast", "current", "Hour", 10);
-                createListItems("dailyForecast", "current", "Daily", 8);
-                forecastItemLabels(hourly, 'current');
-                document.getElementById('currentTemp').innerHTML = Math.round(current.temp) + "°";
-                document.getElementById('currentConditions').textContent = capitaliseConditions(current.weather[0].description);
-                document.getElementById('highLow').textContent = "H:" + Math.round(daily[0].temp.max) + "° L:" + Math.round(daily[0].temp.min) + "°";
+                createListItems(locationType, 'Hourly', 10);
+                createListItems(locationType, 'Daily', 8);
+                forecastItemLabels(hourly, locationType);
+                // display weather data
+                document.getElementById(`${locationType}Temp`).innerHTML = Math.round(current.temp) + "°";
+                document.getElementById(`${locationType}Conditions`).textContent = capitaliseConditions(current.weather[0].description);
+                document.getElementById(`${locationType}HighLow`).textContent = "H:" + Math.round(daily[0].temp.max) + "° L:" + Math.round(daily[0].temp.min) + "°";
+
                 //fill in the 10-hour forecast
                 for (let i = 0; i < 10; i++) {
-                    currentHourConditions[i] = capitaliseConditions(hourly[i].weather[0]["description"]);
+                    HourlyConditions[i] = capitaliseConditions(hourly[i].weather[0]["description"]);
                     calculateRain("hourly", hourly, i);
-                    document.getElementById("currentHourTemp" + [i]).textContent = Math.round(hourly[i].temp) + "°";
-                    document.getElementById("currentHourImg" + [i]).src = `https://matt54633.com/weather/weatherIcons/${hourly[i].weather[0]["icon"]}.svg`;
-                    currentHourImg[i] = `https://matt54633.com/weather/weatherIcons/${hourly[i].weather[0]["icon"]}.svg`;
-                    currentHourTemp[i] = Math.round(hourly[i].temp) + "°";
+                    document.getElementById(`${locationType}HourlyTemp` + [i]).textContent = Math.round(hourly[i].temp) + "°";
+                    document.getElementById(`${locationType}HourlyImg` + [i]).src = `https://matt54633.com/weather/weatherIcons/${hourly[i].weather[0]["icon"]}.svg`;
+                    HourlyImg[i] = `https://matt54633.com/weather/weatherIcons/${hourly[i].weather[0]["icon"]}.svg`;
+                    HourlyTemp[i] = Math.round(hourly[i].temp) + "°";
                     if (hourly[i].rain == null) {
-                        currentHourInfo[i] = currentHourConditions[i] + "<br>Feels Like: " + Math.round(hourly[i].feels_like) + "°&nbsp;&nbsp;&nbsp;&nbsp;Humidity: " + hourly[i].humidity + "%<br>Wind: " + (Math.round(hourly[i].wind_speed * 2.237)) + "mph&nbsp;&nbsp;&nbsp;&nbsp;Rain: " + Math.floor((hourly[i].pop * 100)) + "%";
+                        HourlyInfo[i] = HourlyConditions[i] + "<br>Feels Like: " + Math.round(hourly[i].feels_like) + "°&nbsp;&nbsp;&nbsp;&nbsp;Humidity: " + hourly[i].humidity + "%<br>Wind: " + (Math.round(hourly[i].wind_speed * 2.237)) + "mph&nbsp;&nbsp;&nbsp;&nbsp;Rain: " + Math.floor((hourly[i].pop * 100)) + "%";
                     } else {
-                        currentHourInfo[i] = currentHourConditions[i] + "<br>Feels Like: " + Math.round(hourly[i].feels_like) + "°&nbsp;&nbsp;&nbsp;&nbsp;Humidity: " + hourly[i].humidity + "%<br>Wind: " + (Math.round(hourly[i].wind_speed * 2.237)) + "mph&nbsp;&nbsp;&nbsp;&nbsp;Rain: " + Math.floor((hourly[i].pop * 100)) + "% / " + currentHourRain[i];
+                        HourlyInfo[i] = HourlyConditions[i] + "<br>Feels Like: " + Math.round(hourly[i].feels_like) + "°&nbsp;&nbsp;&nbsp;&nbsp;Humidity: " + hourly[i].humidity + "%<br>Wind: " + (Math.round(hourly[i].wind_speed * 2.237)) + "mph&nbsp;&nbsp;&nbsp;&nbsp;Rain: " + Math.floor((hourly[i].pop * 100)) + "% / " + hourlyRain[i];
                     }
                 }
+                // //fill in the 8-day forecast
                 for (let i = 0; i < 8; i++) {
+                    DailyConditions[i] = capitaliseConditions(daily[i].weather[0]["description"]);
                     calculateRain("daily", daily, i);
-                    currentDailyConditions[i] = capitaliseConditions(daily[i].weather[0]["description"]);
                     //fill in the 7-day forecast
-                    document.getElementById("currentDailyImg" + [i]).src = `https://matt54633.com/weather/weatherIcons/${daily[i].weather[0]["icon"]}.svg`;
-                    document.getElementById("currentDailyTemp" + [i]).innerHTML = Math.round(daily[i].temp.max) + "°<br>" + Math.round(daily[i].temp.min) + "°";
-                    currentDailyImg[i] = `https://matt54633.com/weather/weatherIcons/${daily[i].weather[0]["icon"]}.svg`;
-                    currentDailyTemp[i] = Math.round(daily[i].temp.max) + "° / " + Math.round(daily[i].temp.min) + "°";
+                    document.getElementById(`${locationType}DailyImg` + [i]).src = `https://matt54633.com/weather/weatherIcons/${daily[i].weather[0]["icon"]}.svg`;
+                    document.getElementById(`${locationType}DailyTemp` + [i]).innerHTML = Math.round(daily[i].temp.max) + "°<br>" + Math.round(daily[i].temp.min) + "°";
+                    DailyImg[i] = `https://matt54633.com/weather/weatherIcons/${daily[i].weather[0]["icon"]}.svg`;
+                    DailyTemp[i] = Math.round(daily[i].temp.max) + "° / " + Math.round(daily[i].temp.min) + "°";
                     if (daily[i].rain == null) {
-                        currentDailyInfo[i] = currentDailyConditions[i] + "<br>Feels Like: " + Math.round(daily[0].feels_like.day) + "°&nbsp;&nbsp;&nbsp;&nbsp;Humidity: " + daily[i].humidity + "%<br>Wind: " + (Math.round(daily[i].wind_speed * 2.237)) + "mph&nbsp;&nbsp;&nbsp;&nbsp;Rain: " + Math.floor((daily[i].pop * 100)) + "%";
+                        DailyInfo[i] = DailyConditions[i] + "<br>Feels Like: " + Math.round(daily[0].feels_like.day) + "°&nbsp;&nbsp;&nbsp;&nbsp;Humidity: " + daily[i].humidity + "%<br>Wind: " + (Math.round(daily[i].wind_speed * 2.237)) + "mph&nbsp;&nbsp;&nbsp;&nbsp;Rain: " + Math.floor((daily[i].pop * 100)) + "%";
                     } else {
-                        currentDailyInfo[i] = currentDailyConditions[i] + "<br>Feels Like: " + Math.round(daily[0].feels_like.day) + "°&nbsp;&nbsp;&nbsp;&nbsp;Humidity: " + daily[i].humidity + "%<br>Wind: " + (Math.round(daily[i].wind_speed * 2.237)) + "mph&nbsp;&nbsp;&nbsp;&nbsp;Rain: " + Math.floor((daily[i].pop * 100)) + "% / " + currentDailyRain[i];
+                        DailyInfo[i] = DailyConditions[i] + "<br>Feels Like: " + Math.round(daily[0].feels_like.day) + "°&nbsp;&nbsp;&nbsp;&nbsp;Humidity: " + daily[i].humidity + "%<br>Wind: " + (Math.round(daily[i].wind_speed * 2.237)) + "mph&nbsp;&nbsp;&nbsp;&nbsp;Rain: " + Math.floor((daily[i].pop * 100)) + "% / " + dailyRain[i];
                     }
                 }
-                createMap('currentLocationMap', [y, x]);
-            });
-            animate();
-        return false;
-    });
-}
-
-function chosenLocation(previousSearch, previousCall) {
-    document.getElementById('searchLocation').style.display = "block";
-    let searchLocation = document.getElementById('input').value;
-    let geoLocationApiCall;
-    if (previousSearch != null) { searchLocation = previousSearch; }
-    fetch(`https://api.openweathermap.org/data/2.5/weather?q=${searchLocation}&appid=${apiKey}&units=metric`)
-        .then(response => response.json()).then(data => {
-            const { name, sys, cod } = data;
-            if (cod != 200) {
-                displayError(cod);
-            } else {
-                console.log(`https://api.openweathermap.org/geo/1.0/direct?q=${searchLocation},${sys.country}&appid=${apiKey}`);
-                fetch(`https://api.openweathermap.org/geo/1.0/direct?q=${searchLocation},${sys.country}&appid=${apiKey}`)
-                    .then(response => response.json()).then(data => {
-                        if (previousCall == null) {
-                            geoLocationApiCall = `https://api.openweathermap.org/data/2.5/onecall?lat=${data[0].lat}&lon=${data[0].lon}&appid=${apiKey}&units=metric`;
-                        } else {
-                            geoLocationApiCall = previousCall;
-                        }
-                        fetch(geoLocationApiCall)
-                            .then(response => response.json()).then(data => {
-                                const { current, hourly, daily } = data;
-                                if (JSON.stringify(name).length > 14) {
-                                    document.getElementById('searchLocationTitle').style.fontSize = "clamp(0.5rem, 1vw + 1rem, 1.4rem)";
-                                }
-                                createListItems("hourlyForecast2", "search", "Hour", 10);
-                                createListItems("dailyForecast2", "search", "Daily", 8);
-                                forecastItemLabels(hourly, 'search');
-                                localStorage.setItem('Previous Call', geoLocationApiCall);
-                                document.getElementById('errorText').style.display = 'none';
-                                document.getElementById('searchLocationDetails').style.display = "block";
-                                document.getElementById('searchLocationImg').style.display = "inline-block";
-                                document.getElementById('searchLocationTitle').textContent = name;
-                                document.getElementById('searchLocationTemp').innerHTML = Math.round(current.temp) + "°";
-                                document.getElementById('searchLocationInfo').innerHTML = capitaliseConditions(current.weather[0].description) + "<br>H:" + Math.round(daily[0].temp.max) + "° L:" + Math.round(daily[0].temp.min) + "°";
-                                document.getElementById('searchLocationImg').src = `https://matt54633.com/weather/weatherIcons/${current.weather[0]["icon"]}.svg`;
-                                document.getElementById('input').value = "";
-
-                                for (let i = 0; i < 10; i++) {
-                                    searchHourConditions[i] = capitaliseConditions(hourly[i].weather[0]["description"]);
-                                    calculateRain("hourly", hourly, i);
-                                    //fill in the 10 hour forecast
-                                    document.getElementById("searchHourTemp" + [i]).textContent = Math.round(hourly[i].temp) + "°";
-                                    document.getElementById("searchHourImg" + [i]).src = `https://matt54633.com/weather/weatherIcons/${hourly[i].weather[0]["icon"]}.svg`;
-                                    searchHourImg[i] = `https://matt54633.com/weather/weatherIcons/${hourly[i].weather[0]["icon"]}.svg`;
-                                    searchHourTemp[i] = Math.round(hourly[i].temp) + "°";
-                                    if (hourly[i].rain == null) {
-                                        searchHourInfo[i] = searchHourConditions[i] + "<br>Feels Like: " + Math.round(hourly[i].feels_like) + "°&nbsp;&nbsp;&nbsp;&nbsp;Humidity: " + hourly[i].humidity + "%<br>Wind: " + (Math.round(hourly[i].wind_speed * 2.237)) + "mph&nbsp;&nbsp;&nbsp;&nbsp;Rain: " + Math.floor((hourly[i].pop * 100)) + "%";
-                                    } else {
-                                        searchHourInfo[i] = searchHourConditions[i] + "<br>Feels Like: " + Math.round(hourly[i].feels_like) + "°&nbsp;&nbsp;&nbsp;&nbsp;Humidity: " + hourly[i].humidity + "%<br>Wind: " + (Math.round(hourly[i].wind_speed * 2.237)) + "mph&nbsp;&nbsp;&nbsp;&nbsp;Rain: " + Math.floor((hourly[i].pop * 100)) + "% / " + searchHourRain[i];
-                                    }
-                                }
-                                for (let i = 0; i < 8; i++) {
-                                    //fill in the 7-day forecast
-                                    searchDailyConditions[i] = capitaliseConditions(daily[i].weather[0]["description"]);
-                                    calculateRain("daily", daily, i);
-                                    document.getElementById("searchDailyImg" + [i]).src = `https://matt54633.com/weather/weatherIcons/${daily[i].weather[0]["icon"]}.svg`;
-                                    document.getElementById("searchDailyTemp" + [i]).innerHTML = Math.round(daily[i].temp.max) + "°<br>" + Math.round(daily[i].temp.min) + "°";
-                                    searchDailyImg[i] = `https://matt54633.com/weather/weatherIcons/${daily[i].weather[0]["icon"]}.svg`;
-                                    searchDailyTemp[i] = Math.round(daily[i].temp.max) + "° / " + Math.round(daily[i].temp.min) + "°";
-                                    if (daily[i].rain == null) {
-                                        searchDailyInfo[i] = searchDailyConditions[i] + "<br>Feels Like: " + Math.round(daily[i].feels_like.day) + "°&nbsp;&nbsp;&nbsp;&nbsp;Humidity: " + daily[i].humidity + "%<br>Wind: " + (Math.round(daily[i].wind_speed * 2.237)) + "mph&nbsp;&nbsp;&nbsp;&nbsp;Rain: " + Math.floor((daily[i].pop * 100)) + "%";
-                                    } else {
-                                        searchDailyInfo[i] = searchDailyConditions[i] + "<br>Feels Like: " + Math.round(daily[i].feels_like.day) + "°&nbsp;&nbsp;&nbsp;&nbsp;Humidity: " + daily[i].humidity + "%<br>Wind: " + (Math.round(daily[i].wind_speed * 2.237)) + "mph&nbsp;&nbsp;&nbsp;&nbsp;Rain: " + Math.floor((daily[i].pop * 100)) + "% / " + searchDailyRain[i];
-                                    }
-                                }
-                                searchLocation = name + ", " + sys.country;
-                                localStorage.setItem('Previous Search', searchLocation);
-                                mapboxgl.accessToken = 'pk.eyJ1IjoibWF0dDU0NjMzIiwiYSI6ImNrN3FqeTM3djA0eGszZnA5ZzFzdHU5cncifQ.E05mbOmq5K83ZmeVeIPk8A';
-                                let mapboxClient = mapboxSdk({ accessToken: mapboxgl.accessToken });
-                                mapboxClient.geocoding
-                                    .forwardGeocode({
-                                        query: searchLocation,
-                                        autocomplete: false,
-                                        limit: 1
-                                    })
-                                    .send().then(function (response) {
-                                        if (
-                                            response &&
-                                            response.body &&
-                                            response.body.features &&
-                                            response.body.features.length
-                                        ) {
-                                            let feature = response.body.features[0];
-                                            createMap('searchLocationMap', feature.center)
-                                        }
-                                    });
-                                document.getElementById('input').blur();
-                            })
-                    });
-            }
-        });
+                if (locationType == "current") {
+                    mapCenter = [y, x];
+                    createMap(`${locationType}Map`, mapCenter);
+                    displayRain(minutely);
+                } else {
+                    searchMap(locationType);
+                }
+            })
+        }
+    )
+    animate();
     return false;
 }
-
+// function to animate the page
 function animate() {
     const fadeElements = document.querySelectorAll('.fadeMiddle');
     document.getElementById('loader').style.display = 'none';
     fadeElements.forEach((el) => { el.classList.add('fadeMiddleShow') });
 }
+// function to create the list items for the forecast
+function createListItems(locationType, forecastType, index) {
+    let ul = document.getElementById(`${locationType}${forecastType}Forecast`);
+    while (ul.firstChild) {
+        ul.removeChild(ul.firstChild);
+    }
 
-function openInfoPanel(locationType, forecastType, number) {
+    for (let i = 0; i < index; i++) {
+        let listItem = document.createElement("li");
+        let listItemH2 = document.createElement("h2");
+        let listItemImg = document.createElement("img");
+        let listItemH3 = document.createElement("h3");
+        listItem.setAttribute("id", `forecastLi${i}`)
+        listItem.setAttribute('onclick', 'openInfoPanel();');
+        listItemImg.setAttribute('alt', 'Forecast Image');
+        listItem.onclick = function () { openInfoPanel(forecastType, i); };
+        listItemH2.setAttribute("id", `${locationType}${forecastType}Title${i}`);
+        listItemImg.setAttribute("id", `${locationType}${forecastType}Img${i}`);
+        listItemH3.setAttribute("id", `${locationType}${forecastType}Temp${i}`);
+
+        listItem.append(listItemH2, listItemImg, listItemH3);
+        ul.appendChild(listItem);
+    }
+};
+// function to create the labels for the forecast items
+function forecastItemLabels(hourlyArray, locationType) {
+    let day = new Date();
+    let week = new Array("Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat");
+    for (let i = 0; i < 10; i++) {
+        let date = new Date(hourlyArray[i].dt * 1000);
+        HourlyTitles[i] = (date.getHours() + ":00").toString();
+        DailyTitles[i] = week[(day.getDay() + 1 + (i - 1)) % 7];
+        document.getElementById(locationType + "HourlyTitle" + [i]).innerText = HourlyTitles[i];
+    }
+    for (let i = 0; i < 8; i++) {
+        document.getElementById(locationType + "DailyTitle" + [i]).innerText = DailyTitles[i];
+    }
+    document.getElementById(locationType + "DailyTitle0").innerText = "Today";
+}
+// function to open info panel
+function openInfoPanel(forecastType, number) {
     document.getElementById('infoPanel').classList.add('fadeUpShow');
     document.getElementById('infoPanelTitle').textContent = eval(`${forecastType}Titles[${number}]`);
-    document.getElementById('infoPanelImg').src = eval(`${locationType}${forecastType}Img[${number}]`);
-    document.getElementById('infoPanelTemp').textContent = eval(`${locationType}${forecastType}Temp[${number}]`);
-    document.getElementById('infoPanelInfo').innerHTML = eval(`${locationType}${forecastType}Info[${number}]`);
+    document.getElementById('infoPanelImg').src = eval(`${forecastType}Img[${number}]`);
+    document.getElementById('infoPanelTemp').textContent = eval(`${forecastType}Temp[${number}]`);
+    document.getElementById('infoPanelInfo').innerHTML = eval(`${forecastType}Info[${number}]`);
 }
-
+// function to close the info panel
 function closeInfoPanel() {
     document.getElementById('infoPanel').classList.remove('fadeUpShow');
 }
-
+// function to auto-capitalise conditions
+function capitaliseConditions(conditions) {
+    conditions = JSON.stringify(conditions).replaceAll('"', '');
+    conditions = conditions.replace(/(^\w{1})|(\s+\w{1})/g, letter => letter.toUpperCase());
+    return conditions;
+}
 // refresh event handler
-const refreshSpin = [{ transform: 'rotate(0) scale(1)' }, { transform: 'rotate(720deg) scale(1)' }];
-const refreshTiming = { duration: 300, iterations: 1, }
 const refresh = document.getElementById('refresh');
-
 refresh.addEventListener('click', () => {
-    refresh.animate(refreshSpin, refreshTiming);
-    weather();
-    if (localStorage.getItem('Previous Search') != null) { 
-        chosenLocation(
-            localStorage.getItem('Previous Search'), 
-            localStorage.getItem('Previous Call')
-            );
+    refresh.animate([{ transform: 'rotate(0) scale(1)' }, { transform: 'rotate(720deg) scale(1)' }], { duration: 300, iterations: 1, });
+    weather('current', null, null);
+    console.log(localStorage.getItem('previousSearch'))
+    if (localStorage.getItem('previousSearch') != null) { 
+        search(localStorage.getItem('previousSearch'));
     }
 });
-
-//window load event handler
-window.addEventListener('load', () => {
-    if (localStorage.getItem('Previous Search') != null) {
-        chosenLocation(
-            localStorage.getItem('Previous Search'), 
-            localStorage.getItem('Previous Call')
-            );
-    }
-});
-
-closeIcon = document.getElementById('closeSearch');
-closeIcon.addEventListener('click', () => {
-    localStorage.removeItem('Previous Search');
-    localStorage.removeItem('Previous Call');
-    document.getElementById('searchLocation').style.display = 'none';
-});
-
-//search logo event handler 
+// search event handler
 const searchLogo = document.getElementById('searchLogo');
 searchLogo.addEventListener('click', () => {
-    return chosenLocation();
+    search();
+})
+// window load event handler
+window.addEventListener('load', () => {
+    let previousSearch = localStorage.getItem('previousSearch');
+    if (previousSearch != null) {
+        search(previousSearch);
+    }
 });
-
-//info panel event handler
-let infoPanel = document.getElementById('infoPanel');
-let initialY = null;
-
-infoPanel.addEventListener('touchstart', startTouch, false);
-infoPanel.addEventListener('touchmove', moveTouch, false);
-
-function startTouch(e) {
-    initialY = e.touches[0].clientY;
-};
-
-function moveTouch(e) {
-    if (initialY === null) {
-        return;
+// close search event handler
+document.getElementById('closeSearch').addEventListener('click', () => {
+    document.getElementById('search').style.display = 'none';
+    localStorage.removeItem('previousSearch');
+});
+// function to search for a location
+function search(previousSearch) {
+    let searchLocation;
+    if (previousSearch != null) {
+        searchLocation = previousSearch;
+    } else {
+        searchLocation = document.getElementById('input').value;
     }
-    let currentY = e.touches[0].clientY;
-    let diffY = initialY - currentY;
+    fetch(`https://api.openweathermap.org/data/2.5/weather?q=${searchLocation}&appid=${apiKey}&units=metric`)
+        .then(response => response.json()).then(data => {
+        const { sys, cod } = data;
+        if (cod != 200) {
+            alert(cod + " error: Please search again.");
+        } else {
+            let geoApiCall;
+            if (previousSearch == null) {
+                geoApiCall = `https://api.openweathermap.org/geo/1.0/direct?q=${searchLocation},${sys.country}&appid=${apiKey}`;
+            } else {
+                geoApiCall = `https://api.openweathermap.org/geo/1.0/direct?q=${searchLocation}&appid=${apiKey}`;
+            }
+            fetch(geoApiCall)
+            .then(response => response.json()).then(data => {
+                let x = data[0].lat;
+                let y = data[0].lon;
+                document.getElementById('search').style.display = 'block';
 
-    if (diffY < 0) {
-        document.getElementById('infoPanel').classList.remove('fadeUpShow');
-    }
-    initialY = null;
-    e.preventDefault();
-};
-
-//auto-capitalise conditions
-function capitaliseConditions(conditionsType) {
-    conditionsType = JSON.stringify(conditionsType).replaceAll('"', '');
-    conditionsType = conditionsType.replace(/(^\w{1})|(\s+\w{1})/g, letter => letter.toUpperCase());
-    return conditionsType;
+                return weather('search', x, y);
+            })
+        }
+        document.getElementById('input').value = "";
+        document.getElementById('input').blur();
+    })
+    return false;
 }
-
-//map function
+// function to calculate rain
+function calculateRain(rainType, rainArray, index) {
+    if (rainType == "hourly") {
+        if (eval(rainArray[index].rain) == null) {
+            hourlyRain[index] = "0mm";
+        } else {
+            hourlyRain[index] = Math.ceil(rainArray[index].rain["1h"]) + "mm";
+        }
+    } else {
+        if (eval(rainArray[index].rain) == null) {
+            dailyRain[index] = "0mm";
+        } else {
+            dailyRain[index] = Math.ceil(rainArray[index].rain) + "mm";
+        }
+    }
+};
+// function to create maps
 function createMap(mapType, centerPoint) {
     mapboxgl.accessToken = 'pk.eyJ1IjoibWF0dDU0NjMzIiwiYSI6ImNrN3FqeTM3djA0eGszZnA5ZzFzdHU5cncifQ.E05mbOmq5K83ZmeVeIPk8A';
     let map = new mapboxgl.Map({
@@ -304,7 +262,6 @@ function createMap(mapType, centerPoint) {
                         maxzoom: 12
                     });
                 });
-
                 let i = 0;
                 const interval = setInterval(() => {
                     if (i > apiData.radar.past.length - 1) {
@@ -342,142 +299,78 @@ function createMap(mapType, centerPoint) {
             .catch(console.error);
     });
 };
-
-function calculateRain(rainType, rainArray, index) {
-    if (rainType == "hourly") {
-        if (eval(rainArray[index].rain) == null) {
-            currentHourRain[index] = "0mm";
-            searchHourRain[index] = "0mm";
-        } else {
-            currentHourRain[index] = Math.ceil(rainArray[index].rain["1h"]) + "mm";
-            searchHourRain[index] = Math.ceil(rainArray[index].rain["1h"]) + "mm";
-        }
-    } else {
-        if (eval(rainArray[index].rain) == null) {
-            currentDailyRain[index] = "0mm";
-            searchDailyRain[index] = "0mm";
-        } else {
-            currentDailyRain[index] = Math.ceil(rainArray[index].rain) + "mm";
-            searchDailyRain[index] = Math.ceil(rainArray[index].rain) + "mm";
-        }
-    }
-};
-
-function createListItems(ulName, locationType, forecastType, index) {
-    let ul = document.getElementById(ulName);
-    if (ul.querySelectorAll("li").length > 0) {
-        for (let i = 0; i < index; i++) {
-            document.getElementById(`${forecastType}${locationType}Li${i}`).remove();
-        }
-    }
-    for (let i = 0; i < index; i++) {
-        let listItem = document.createElement("li");
-        let listItemH2 = document.createElement("h2");
-        let listItemImg = document.createElement("img");
-        let listItemH3 = document.createElement("h3");
-        listItem.setAttribute("id", `${forecastType}${locationType}Li${i}`)
-        listItem.setAttribute('onclick', 'openInfoPanel();');
-        listItemImg.setAttribute('alt', 'Forecast Image');
-        listItem.onclick = function () { openInfoPanel(locationType, forecastType, i); };
-        listItemH2.setAttribute("id", `${locationType}${forecastType}Title${i}`);
-        listItemImg.setAttribute("id", `${locationType}${forecastType}Img${i}`);
-        listItemH3.setAttribute("id", `${locationType}${forecastType}Temp${i}`);
-
-        listItem.append(listItemH2, listItemImg, listItemH3);
-        document.getElementById(ulName).appendChild(listItem);
-    }
-};
-
-function forecastItemLabels(hourlyArray, locationType) {
-    let day = new Date();
-    let week = new Array("Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat");
-    for (let i = 0; i < 10; i++) {
-        let date = new Date(hourlyArray[i].dt * 1000);
-        HourTitles[i] = (date.getHours() + ":00").toString();
-        DailyTitles[i] = week[(day.getDay() + 1 + (i - 1)) % 7];
-        document.getElementById(locationType + 'HourTitle' + [i]).innerText = HourTitles[i];
-    }
-    for (let i = 0; i < 8; i++) {
-        document.getElementById(locationType + 'DailyTitle' + [i]).innerText = DailyTitles[i];
-    }
-    document.getElementById(locationType + 'DailyTitle0').innerText = 'Today';
+// function to create a map from a search
+function searchMap(locationType) {
+    mapboxgl.accessToken = 'pk.eyJ1IjoibWF0dDU0NjMzIiwiYSI6ImNrN3FqeTM3djA0eGszZnA5ZzFzdHU5cncifQ.E05mbOmq5K83ZmeVeIPk8A';
+    let mapboxClient = mapboxSdk({ accessToken: mapboxgl.accessToken });
+    mapboxClient.geocoding.forwardGeocode({
+            query: localStorage.getItem('previousSearch'),
+            autocomplete: false,
+            limit: 1
+        })
+        .send().then(function (response) {
+            if (response && response.body && response.body.features && response.body.features.length) {
+                mapCenter = response.body.features[0];
+                mapCenter = mapCenter.center;
+                createMap(`${locationType}Map`, mapCenter);
+            }
+        });
 }
-
-function rainDisplay(rainData) {
+// function to create a rain chart
+function displayRain(rainData) {
     let precipitation = [];
     let labels = [];
     let counter = 0;
     let rainDisplay = document.getElementById('rainDisplay');
+    let rainChart = document.getElementById('rainChart');
+
     for (let i = 0; i < 60; i++) {
         labels[i] = i;
         precipitation[i] = rainData[i].precipitation;
-        if (rainData[i].precipitation > 0) { counter += 1; }
+        if (rainData[i].precipitation > 0) { 
+            counter += 1;
+        }
     }
-    let chartStatus = Chart.getChart("rainChart"); // <canvas> id
-    if (chartStatus != undefined) {
-        chartStatus.destroy();
-    }
+    if (Chart.getChart("rainChart") != undefined) {
+        Chart.getChart("rainChart").destroy();
+    } 
     if (counter > 5) {
         rainDisplay.style.display = "block";    
-            let container = document.getElementById('rainChart');
-            new Chart(container, {
-                type: 'bar',
-                data: {
-                  labels: labels,
-                  datasets: [{
+        new Chart(rainChart, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
                     label: 'Rain (mm)',
                     data: precipitation,
                     backgroundColor: '#60AFFF',
                     borderRadius: 20
-                  }]
-                },
-                options: {
-                    animations: false,
-                    plugins: { legend: { display: false } },
-                    maintainAspectRatio: false,
-                  scales: {
+                }]
+            },
+            options: {
+                animations: false,
+                plugins: { legend: { display: false } },
+                maintainAspectRatio: false,
+                scales: {
                     y: { display: false, suggestedMax: 0.65 },
                     x: { display: false }
-                  }}
-              });
-    } else { rainDisplay.style.display = "none"; }
+                }
+            }
+        });
+    } else { 
+        rainDisplay.style.display = "none";
+    }
 }
-
+// function to display weather alerts
 function displayAlerts(alertsData) {
-    let alertsDisplay = document.getElementById('alertsDisplay');
     if (alertsData != null) {
-        alertsDisplay.style.display = 'block';
+        document.getElementById('alertsDisplay').style.display = 'block';
         document.getElementById('alertsDisplayTitle').innerText = alertsData[0].event;
         let date = new Date(alertsData[0].end * 1000).toUTCString();
         document.getElementById('alertsDisplayInfo').innerHTML = "From the " + alertsData[0].sender_name + ". A " + alertsData[0].event + " is in place until: " + date + ".";
-    } else { alertsDisplay.style.display = 'none'; }
-};
-
-function displayedAlerts() {
-    let alertsDisplay = document.getElementById('alertsDisplay');
-    let rainDisplay = document.getElementById('rainDisplay');
-    if (window.innerWidth < window.innerHeight) {
-        alertsDisplay.style.width = '90vw';
-        rainDisplay.style.width = '90vw';
-    }
-    else if (alertsDisplay.style.display == 'block' && rainDisplay.style.display != 'block') {
-        alertsDisplay.style.width = '100%';
-    } else if (alertsDisplay.style.display != 'block' && rainDisplay.style.display == 'block' ) { 
-        rainDisplay.style.width = '100%'; 
-    } else {
-        alertsDisplay.style.width = '30%';
-        rainDisplay.style.width = '70%';
+    } else { 
+        document.getElementById('alertsDisplay').style.display = 'none'; 
     }
 };
-window.addEventListener('resize', displayedAlerts);
-
-function displayError(cod) {
-    document.getElementById('errorText').style.display = 'block';
-    document.getElementById('errorText').innerHTML = cod + " Error<br>Please search again.";
-    document.getElementById('searchLocationDetails').style.display = "none";
-    document.getElementById('searchLocationImg').style.display = "none";
-    document.getElementById('input').value = "";
-    document.getElementById('input').blur();
-}
-
+// copyright footer
 document.getElementById('footerInfo').innerText = '©Matt Sullivan - ' + new Date().getFullYear();

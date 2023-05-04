@@ -19,7 +19,7 @@
     <script defer src="\scripts\app.js"></script>
 </head>
 
-<body onload="weather()">
+<body onload="weather('current'), null, null">
     <div id="loader">
         <svg id="loadingCircle" version="1.1" id="L3" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 100 100" enable-background="new 0 0 0 0" xml:space="preserve">
         <circle fill="none" stroke="#fff" stroke-width="4" cx="50" cy="50" r="44" style="opacity:0.5;"/>
@@ -28,21 +28,22 @@
         </circle>
         </svg>
     </div>
-    <div class="fadeMiddle glass" id="currentWeather">
-        <div id="flexContainer" class="flexCenter">
-            <h1 id="currentLocation"> </h1>
-            <img alt="Current location Image" id="currentIcon" src="">
+    <div class="fadeMiddle">
+    <div class="glass weatherDetail">
+        <div class="flexContainer flexCenter">
+            <h1 id="currentLocation" class="weatherDetailLocation"></h1>
+            <img alt="Current location Image" id="currentIcon" class="weatherDetailIcon" src="">
         </div>
-        <h2 id="currentTemp"> </h2>
-        <h3 id="currentConditions"> </h3>
-        <h3 id="highLow"> </h3>
+        <h2 id="currentTemp" class="weatherDetailTemp"> </h2>
+        <p id="currentConditions" class="weatherDetailConditions"> </p>
+        <p id="currentHighLow" class="weatherDetailHighLow"> </p>
     </div>
     <div class="flexAlerts">
-        <div id="alertsDisplay" class="fadeMiddle glass">
+        <div id="alertsDisplay" class="glass">
             <h1 id="alertsDisplayTitle"></h1>
             <p id="alertsDisplayInfo"></p>
         </div>
-        <div id="rainDisplay" class="fadeMiddle glass">
+        <div id="rainDisplay" class="glass">
             <h1 id="rainDisplayTitle">Possible Precipitation</h1>
             <div id="rainChartContainer">
                 <canvas id="rainChart"></canvas>
@@ -56,50 +57,47 @@
     </div>
     <div class="flexForecast">
         <div class="forecasts">
-                <ul id="hourlyForecast" class="forecast glass">
+                <ul id="currentHourlyForecast" class="hourly forecast glass">
                 </ul>
-                <ul id="dailyForecast" class="forecast glass">
+                <ul id="currentDailyForecast" class="daily forecast glass">
                 </ul>
         </div>
-        <div id="currentLocationMap">
+        <div id="currentMap" class="map">
             <script src="https://unpkg.com/es6-promise@4.2.4/dist/es6-promise.auto.min.js"></script>
             <script src="https://unpkg.com/@mapbox/mapbox-sdk/umd/mapbox-sdk.min.js"></script>
         </div>
     </div>
-    
+</div>
     <div id="searchBar" class="fadeMiddle glass">
-        <form id="flexContainer" class="flexSearch" method="post" onsubmit="return chosenLocation()">
+        <form class="flexContainer flexSearch" method="post" onsubmit="return search()">
             <input class="fadeMiddle" id="input" type="text" inputmode="search" autocomplete="off" placeholder="Search" onfocus='this.placeholder=""' onblur="this.placeholder =`Search`" autocomplete="off">
             <img alt="Search Logo" id="searchLogo" src="\images\search.svg">
         </form>
     </div>
-    <div id="searchLocation" class="fadeMiddle">
-        <h4 id="errorText"></h4>
-        <div id="searchLocationDetails">
-        <div id="flexContainer" class="searchFlexContainer">
-            <div id="flexContainer" class="searchLocationFlexColumn flexLeft">
-                <div id="flexContainer">
-                    <h2 id="searchLocationTitle"></h2>
-                    <img alt="Search Location Image" id="searchLocationImg" src="">
-                </div>
-                <h1 id="searchLocationTemp"></h1>
-                <h3 id="searchLocationInfo"></h3>
+    <div id="search" class="fadeMiddle">
+        <div id="searchResults">
+        <img alt="Close Icon" id="closeSearch" src="/images/closeLogo.svg">
+        <div class="fadeMiddle glass weatherDetail searchWeatherDetail">
+            <div class="flexContainer searchFlexContainer">
+                <h1 id="searchLocation" class="weatherDetailLocation"> </h1>
+                <img alt="Current location Image" id="searchIcon" class="weatherDetailIcon">
             </div>
-            <img alt="Close Icon" id="closeSearch" src="/images/closeLogo.svg">
+            <h2 id="searchTemp" class="weatherDetailTemp"> </h2>
+            <h3 id="searchConditions" class="weatherDetailConditions"> </h3>
+            <h3 id="searchHighLow" class="weatherDetailHighLow"> </h3>
         </div>
             <div class="flexForecast searchForecast">
                 <div class="forecasts">
-                    <div id="searchHourlyForecastSection" class="fadeMiddle">
-                        <ul id="hourlyForecast2" class="forecast searchLocationForecast glass">
+                    <div class="fadeMiddle">
+                        <ul id="searchHourlyForecast" class="hourly forecast searchLocationForecast glass">
                         </ul>
                     </div>
-                   
-                    <div id="searchDailyForecastSection" class="fadeMiddle">
-                        <ul id="dailyForecast2" class="forecast searchLocationForecast glass">
+                    <div class="fadeMiddle">
+                        <ul id="searchDailyForecast" class="daily forecast searchLocationForecast glass">
                         </ul>
                     </div>
                 </div>
-                <div id="searchLocationMap">
+                <div id="searchMap" class="map">
                     <script src="https://unpkg.com/es6-promise@4.2.4/dist/es6-promise.auto.min.js"></script>
                     <script src="https://unpkg.com/@mapbox/mapbox-sdk/umd/mapbox-sdk.min.js"></script>
                 </div>
@@ -116,7 +114,7 @@
     </div>
     <div id="footer" class="fadeMiddle">
         <img id="refresh" alt="Refresh Logo" src="\images\refresh.svg">
-        <h1 id="footerInfo"></h1>
+        <p id="footerInfo"></p>
     </div>
     <script async src="https://api.mapbox.com/mapbox-gl-js/v2.1.0/mapbox-gl.js"></script>
     <script async src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.js"></script>
