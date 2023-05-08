@@ -135,11 +135,11 @@ body {
 #rainDisplayTitle, #alertsDisplayTitle {
     font-size: var(--small-font-size);
     font-weight: 600;
-    padding: 1rem;
+    padding: 1rem 1rem 0.75rem 1rem;
     margin: 0;
 }
 #alertsDisplayInfo {
-    padding: 0 1rem;
+    padding: 0.3rem 1rem 1rem 1rem;
     font-size: var(--tiny-font-size);
     margin: 0;
 }
@@ -260,7 +260,7 @@ input {
     margin: 1.5rem 0;
     padding: 1.5rem;
 }
-#closeSearch {
+#closeIcon {
     position: absolute;
     right: 1.3rem;
     margin: 0;
@@ -272,8 +272,11 @@ input {
     vertical-align: middle;
     z-index: 1;
 }
-#closeSearch:hover {
+#closeIcon:hover {
     transform: scale(1.2);
+}
+#closeButton {
+    display: none;
 }
 #infoPanel {
     position: fixed;
@@ -285,7 +288,7 @@ input {
     border-radius: 2rem 2rem 0 0;
     z-index: 2;
 }
-#closeInfoPanel {
+#closeInfoPanel, #closeButton {
     margin: 1.5rem 1.5rem 2rem 1.5rem;
     border-radius: 0.75rem;
     text-align: center;
@@ -299,7 +302,7 @@ input {
     border: 2px solid transparent;
     box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
 }
-#closeInfoPanel:hover {
+#closeInfoPanel:hover, #closeButton:hover {
     background: rgba(255, 255, 255, 0.2);
     border: 2px solid rgba(255, 255, 255, 0.3);
     color: var(--white);
@@ -393,11 +396,10 @@ input {
     #rainDisplayTitle, #alertsDisplayTitle {
         margin: 0;
         text-align: center;
-        padding: 1rem 1rem 0 1rem;
+        padding: 1rem 1rem 0.5rem 1rem;
     }
     #alertsDisplayInfo {
         text-align: center;
-        margin: 0.5rem 0 1rem 0;
         font-size: var(--tiny-font-size);
     }
     .now, .thirty, .sixty {
@@ -456,16 +458,19 @@ input {
     .searchFlexContainer {
         align-items: flex-start;
     }
-    #searchLocation {
-        max-width: 50%;
-        overflow-wrap: break-word;
-    }
     #searchTemp {
         font-size: calc(var(--large-font-size) * 0.75);
     }
-    #closeSearch {
-        width: clamp(2rem, 1.9vw + 1.9rem, 3rem);
-        right: 1rem;
+    #closeIcon {
+        display: none;
+    }
+    #closeButton {
+        display: block;
+        width: 100%;
+        padding: 0.5rem 0;
+        margin: 1.5rem 0 0 0;
+        border-radius: 1.3rem;
+        color: #8E2DE2;
     }
     #searchMap {
         margin: 0;

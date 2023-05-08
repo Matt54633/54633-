@@ -2,18 +2,29 @@ const apiKey = '96ef4b80e6d934610538d335d0ab793e';
 
 let HourlyTitles = [];
 let DailyTitles = [];
-let hourlyRain = [];
-let dailyRain = [];
-let HourlyTemp = [];
-let HourlyConditions = [];
-let HourlyImg = [];
-let HourlyInfo = [];
-let DailyConditions = [];
-let DailyTemp = [];
-let DailyImg = [];
-let DailyInfo = [];
+// info panel arrays
+let currentHourlyTemp = [];
+let currentHourlyConditions = [];
+let currentHourlyImg = [];
+let currentHourlyInfo = [];
+let currentHourlyRain = [];
+let searchHourlyTemp = [];
+let searchHourlyConditions = [];
+let searchHourlyImg = [];
+let searchHourlyInfo = [];
+let searchHourlyRain = [];
+let currentDailyTemp = [];
+let currentDailyConditions = [];
+let currentDailyImg = [];
+let currentDailyInfo = [];
+let currentDailyRain = [];
+let searchDailyTemp = [];
+let searchDailyConditions = [];
+let searchDailyImg = [];
+let searchDailyInfo = [];
+let searchDailyRain = [];
 
-function weather(locationType, x, y) {
+function weather(locationType, x, y, searchString) {
     let mapCenter;
     // get x and y coord
     navigator.geolocation.getCurrentPosition(position => {
@@ -24,19 +35,20 @@ function weather(locationType, x, y) {
         // get name of location using x and y coordinates
         fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${x}&lon=${y}&appid=${apiKey}&units=metric`)
             .then(response => response.json()).then(data => {
-                var { name, weather, sys } = data;
-                document.getElementById(`${locationType}Location`).textContent = name;
-                document.getElementById(`${locationType}Icon`).src = `https://matt54633.com/weather/weatherIcons/${weather[0]["icon"]}.svg`;
+                var { name, weather } = data;
                 if (locationType == "search") {
-                    localStorage.setItem('previousSearch', name + ", " + sys.country);
+                    document.getElementById(`${locationType}Location`).textContent = searchString;
+                    localStorage.setItem('previousSearch', searchString);
+                } else {
+                    document.getElementById(`${locationType}Location`).textContent = name;
                 }
+                document.getElementById(`${locationType}Icon`).src = `https://matt54633.com/weather/weatherIcons/${weather[0]["icon"]}.svg`;
             })
         // get weather data using x and y coordinates
         fetch(`https://api.openweathermap.org/data/2.5/onecall?lat=${x}&lon=${y}&appid=${apiKey}&units=metric`)
             .then(response => response.json()).then(data => {
                 var { current, hourly, daily, minutely, alerts } = data;
                 // create list items
-                displayAlerts(alerts);
                 createListItems(locationType, 'Hourly', 10);
                 createListItems(locationType, 'Daily', 8);
                 forecastItemLabels(hourly, locationType);
@@ -47,51 +59,56 @@ function weather(locationType, x, y) {
 
                 //fill in the 10-hour forecast
                 for (let i = 0; i < 10; i++) {
-                    HourlyConditions[i] = capitaliseConditions(hourly[i].weather[0]["description"]);
-                    calculateRain("hourly", hourly, i);
+                    eval(locationType + 'HourlyConditions')[i] = capitaliseConditions(hourly[i].weather[0]["description"]);
+                    calculateRain(locationType, "hourly", hourly, i);
                     document.getElementById(`${locationType}HourlyTemp` + [i]).textContent = Math.round(hourly[i].temp) + "°";
                     document.getElementById(`${locationType}HourlyImg` + [i]).src = `https://matt54633.com/weather/weatherIcons/${hourly[i].weather[0]["icon"]}.svg`;
-                    HourlyImg[i] = `https://matt54633.com/weather/weatherIcons/${hourly[i].weather[0]["icon"]}.svg`;
-                    HourlyTemp[i] = Math.round(hourly[i].temp) + "°";
+                    eval(locationType + 'HourlyImg')[i] = `https://matt54633.com/weather/weatherIcons/${hourly[i].weather[0]["icon"]}.svg`;
+                    eval(locationType + 'HourlyTemp')[i] = Math.round(hourly[i].temp) + "°";
                     if (hourly[i].rain == null) {
-                        HourlyInfo[i] = HourlyConditions[i] + "<br>Feels Like: " + Math.round(hourly[i].feels_like) + "°&nbsp;&nbsp;&nbsp;&nbsp;Humidity: " + hourly[i].humidity + "%<br>Wind: " + (Math.round(hourly[i].wind_speed * 2.237)) + "mph&nbsp;&nbsp;&nbsp;&nbsp;Rain: " + Math.floor((hourly[i].pop * 100)) + "%";
+                        eval(locationType + 'HourlyInfo')[i] = eval(locationType + 'HourlyConditions')[i] + "<br>Feels Like: " + Math.round(hourly[i].feels_like) + "°&nbsp;&nbsp;&nbsp;&nbsp;Humidity: " + hourly[i].humidity + "%<br>Wind: " + (Math.round(hourly[i].wind_speed * 2.237)) + "mph&nbsp;&nbsp;&nbsp;&nbsp;Rain: " + Math.floor((hourly[i].pop * 100)) + "%";
                     } else {
-                        HourlyInfo[i] = HourlyConditions[i] + "<br>Feels Like: " + Math.round(hourly[i].feels_like) + "°&nbsp;&nbsp;&nbsp;&nbsp;Humidity: " + hourly[i].humidity + "%<br>Wind: " + (Math.round(hourly[i].wind_speed * 2.237)) + "mph&nbsp;&nbsp;&nbsp;&nbsp;Rain: " + Math.floor((hourly[i].pop * 100)) + "% / " + hourlyRain[i];
+                        eval(locationType + 'HourlyInfo')[i] = eval(locationType + 'HourlyConditions')[i] + "<br>Feels Like: " + Math.round(hourly[i].feels_like) + "°&nbsp;&nbsp;&nbsp;&nbsp;Humidity: " + hourly[i].humidity + "%<br>Wind: " + (Math.round(hourly[i].wind_speed * 2.237)) + "mph&nbsp;&nbsp;&nbsp;&nbsp;Rain: " + Math.floor((hourly[i].pop * 100)) + "% / " + eval(locationType + 'HourlyRain')[i];
                     }
                 }
                 // //fill in the 8-day forecast
                 for (let i = 0; i < 8; i++) {
-                    DailyConditions[i] = capitaliseConditions(daily[i].weather[0]["description"]);
-                    calculateRain("daily", daily, i);
+                    eval(locationType + 'DailyConditions')[i] = capitaliseConditions(daily[i].weather[0]["description"]);
+                    calculateRain(locationType, "daily", daily, i);
                     //fill in the 7-day forecast
                     document.getElementById(`${locationType}DailyImg` + [i]).src = `https://matt54633.com/weather/weatherIcons/${daily[i].weather[0]["icon"]}.svg`;
                     document.getElementById(`${locationType}DailyTemp` + [i]).innerHTML = Math.round(daily[i].temp.max) + "°<br>" + Math.round(daily[i].temp.min) + "°";
-                    DailyImg[i] = `https://matt54633.com/weather/weatherIcons/${daily[i].weather[0]["icon"]}.svg`;
-                    DailyTemp[i] = Math.round(daily[i].temp.max) + "° / " + Math.round(daily[i].temp.min) + "°";
+                    eval(locationType + 'DailyImg')[i] = `https://matt54633.com/weather/weatherIcons/${daily[i].weather[0]["icon"]}.svg`;
+                    eval(locationType + 'DailyTemp')[i] = Math.round(daily[i].temp.max) + "° / " + Math.round(daily[i].temp.min) + "°";
                     if (daily[i].rain == null) {
-                        DailyInfo[i] = DailyConditions[i] + "<br>Feels Like: " + Math.round(daily[0].feels_like.day) + "°&nbsp;&nbsp;&nbsp;&nbsp;Humidity: " + daily[i].humidity + "%<br>Wind: " + (Math.round(daily[i].wind_speed * 2.237)) + "mph&nbsp;&nbsp;&nbsp;&nbsp;Rain: " + Math.floor((daily[i].pop * 100)) + "%";
+                        eval(locationType + 'DailyInfo')[i] = eval(locationType + 'DailyConditions')[i] + "<br>Feels Like: " + Math.round(daily[0].feels_like.day) + "°&nbsp;&nbsp;&nbsp;&nbsp;Humidity: " + daily[i].humidity + "%<br>Wind: " + (Math.round(daily[i].wind_speed * 2.237)) + "mph&nbsp;&nbsp;&nbsp;&nbsp;Rain: " + Math.floor((daily[i].pop * 100)) + "%";
                     } else {
-                        DailyInfo[i] = DailyConditions[i] + "<br>Feels Like: " + Math.round(daily[0].feels_like.day) + "°&nbsp;&nbsp;&nbsp;&nbsp;Humidity: " + daily[i].humidity + "%<br>Wind: " + (Math.round(daily[i].wind_speed * 2.237)) + "mph&nbsp;&nbsp;&nbsp;&nbsp;Rain: " + Math.floor((daily[i].pop * 100)) + "% / " + dailyRain[i];
+                        eval(locationType + 'DailyInfo')[i] = eval(locationType + 'DailyConditions')[i] + "<br>Feels Like: " + Math.round(daily[0].feels_like.day) + "°&nbsp;&nbsp;&nbsp;&nbsp;Humidity: " + daily[i].humidity + "%<br>Wind: " + (Math.round(daily[i].wind_speed * 2.237)) + "mph&nbsp;&nbsp;&nbsp;&nbsp;Rain: " + Math.floor((daily[i].pop * 100)) + "% / " + eval(locationType + 'DailyRain')[i];
                     }
                 }
                 if (locationType == "current") {
                     mapCenter = [y, x];
                     createMap(`${locationType}Map`, mapCenter);
                     displayRain(minutely);
+                    displayAlerts(alerts);
                 } else {
                     searchMap(locationType);
                 }
             })
         }
     )
-    animate();
-    return false;
+    if (locationType == "current") {
+        animate();
+    }
 }
 // function to animate the page
 function animate() {
-    const fadeElements = document.querySelectorAll('.fadeMiddle');
-    document.getElementById('loader').style.display = 'none';
-    fadeElements.forEach((el) => { el.classList.add('fadeMiddleShow') });
+    // wait one second
+    setTimeout(() => {
+        const fadeElements = document.querySelectorAll('.fadeMiddle');
+        document.getElementById('loader').style.display = 'none';
+        fadeElements.forEach((el) => { el.classList.add('fadeMiddleShow') });
+    }, 600);
 }
 // function to create the list items for the forecast
 function createListItems(locationType, forecastType, index) {
@@ -108,7 +125,7 @@ function createListItems(locationType, forecastType, index) {
         listItem.setAttribute("id", `forecastLi${i}`)
         listItem.setAttribute('onclick', 'openInfoPanel();');
         listItemImg.setAttribute('alt', 'Forecast Image');
-        listItem.onclick = function () { openInfoPanel(forecastType, i); };
+        listItem.onclick = function () { openInfoPanel(locationType, forecastType, i); };
         listItemH2.setAttribute("id", `${locationType}${forecastType}Title${i}`);
         listItemImg.setAttribute("id", `${locationType}${forecastType}Img${i}`);
         listItemH3.setAttribute("id", `${locationType}${forecastType}Temp${i}`);
@@ -133,12 +150,12 @@ function forecastItemLabels(hourlyArray, locationType) {
     document.getElementById(locationType + "DailyTitle0").innerText = "Today";
 }
 // function to open info panel
-function openInfoPanel(forecastType, number) {
+function openInfoPanel(locationType, forecastType, number) {
     document.getElementById('infoPanel').classList.add('fadeUpShow');
     document.getElementById('infoPanelTitle').textContent = eval(`${forecastType}Titles[${number}]`);
-    document.getElementById('infoPanelImg').src = eval(`${forecastType}Img[${number}]`);
-    document.getElementById('infoPanelTemp').textContent = eval(`${forecastType}Temp[${number}]`);
-    document.getElementById('infoPanelInfo').innerHTML = eval(`${forecastType}Info[${number}]`);
+    document.getElementById('infoPanelImg').src = eval(`${locationType}${forecastType}Img[${number}]`);
+    document.getElementById('infoPanelTemp').textContent = eval(`${locationType}${forecastType}Temp[${number}]`);
+    document.getElementById('infoPanelInfo').innerHTML = eval(`${locationType}${forecastType}Info[${number}]`);
 }
 // function to close the info panel
 function closeInfoPanel() {
@@ -155,7 +172,6 @@ const refresh = document.getElementById('refresh');
 refresh.addEventListener('click', () => {
     refresh.animate([{ transform: 'rotate(0) scale(1)' }, { transform: 'rotate(720deg) scale(1)' }], { duration: 300, iterations: 1, });
     weather('current', null, null);
-    console.log(localStorage.getItem('previousSearch'))
     if (localStorage.getItem('previousSearch') != null) { 
         search(localStorage.getItem('previousSearch'));
     }
@@ -167,16 +183,17 @@ searchLogo.addEventListener('click', () => {
 })
 // window load event handler
 window.addEventListener('load', () => {
+    weather('current', null, null);
     let previousSearch = localStorage.getItem('previousSearch');
     if (previousSearch != null) {
         search(previousSearch);
     }
 });
 // close search event handler
-document.getElementById('closeSearch').addEventListener('click', () => {
+document.querySelectorAll('.closeSearch').forEach((el) => { el.addEventListener('click', () => {
     document.getElementById('search').style.display = 'none';
     localStorage.removeItem('previousSearch');
-});
+})});
 // function to search for a location
 function search(previousSearch) {
     let searchLocation;
@@ -187,24 +204,18 @@ function search(previousSearch) {
     }
     fetch(`https://api.openweathermap.org/data/2.5/weather?q=${searchLocation}&appid=${apiKey}&units=metric`)
         .then(response => response.json()).then(data => {
-        const { sys, cod } = data;
+        const {name, sys, cod } = data;
         if (cod != 200) {
             alert(cod + " error: Please search again.");
         } else {
-            let geoApiCall;
-            if (previousSearch == null) {
-                geoApiCall = `https://api.openweathermap.org/geo/1.0/direct?q=${searchLocation},${sys.country}&appid=${apiKey}`;
-            } else {
-                geoApiCall = `https://api.openweathermap.org/geo/1.0/direct?q=${searchLocation}&appid=${apiKey}`;
-            }
-            fetch(geoApiCall)
-            .then(response => response.json()).then(data => {
-                let x = data[0].lat;
-                let y = data[0].lon;
-                document.getElementById('search').style.display = 'block';
-
-                return weather('search', x, y);
-            })
+            fetch( `https://api.openweathermap.org/geo/1.0/direct?q=${searchLocation}&appid=${apiKey}`)
+                .then(response => response.json()).then(data => {
+                    let x = data[0].lat;
+                    let y = data[0].lon;
+                    document.getElementById('search').style.display = 'block';
+                    let searchString = name + ", " + sys.country;
+                    return weather('search', x, y, searchString);
+                })
         }
         document.getElementById('input').value = "";
         document.getElementById('input').blur();
@@ -212,18 +223,18 @@ function search(previousSearch) {
     return false;
 }
 // function to calculate rain
-function calculateRain(rainType, rainArray, index) {
+function calculateRain(locationType, rainType, rainArray, index) {
     if (rainType == "hourly") {
         if (eval(rainArray[index].rain) == null) {
-            hourlyRain[index] = "0mm";
+            eval(locationType + 'HourlyRain')[index] = "0mm";
         } else {
-            hourlyRain[index] = Math.ceil(rainArray[index].rain["1h"]) + "mm";
+            eval(locationType + 'HourlyRain')[index] = Math.ceil(rainArray[index].rain["1h"]) + "mm";
         }
     } else {
         if (eval(rainArray[index].rain) == null) {
-            dailyRain[index] = "0mm";
+            eval(locationType + 'DailyRain')[index] = "0mm";
         } else {
-            dailyRain[index] = Math.ceil(rainArray[index].rain) + "mm";
+            eval(locationType + 'DailyRain')[index] = Math.ceil(rainArray[index].rain) + "mm";
         }
     }
 };

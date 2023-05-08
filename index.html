@@ -19,7 +19,7 @@
     <script defer src="\scripts\app.js"></script>
 </head>
 
-<body onload="weather('current'), null, null">
+<body>
     <div id="loader">
         <svg id="loadingCircle" version="1.1" id="L3" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 100 100" enable-background="new 0 0 0 0" xml:space="preserve">
         <circle fill="none" stroke="#fff" stroke-width="4" cx="50" cy="50" r="44" style="opacity:0.5;"/>
@@ -76,7 +76,7 @@
     </div>
     <div id="search" class="fadeMiddle">
         <div id="searchResults">
-        <img alt="Close Icon" id="closeSearch" src="/images/closeLogo.svg">
+        <img alt="Close Icon" id="closeIcon" class="closeSearch" src="/images/closeLogo.svg">
         <div class="fadeMiddle glass weatherDetail searchWeatherDetail">
             <div class="flexContainer searchFlexContainer">
                 <h1 id="searchLocation" class="weatherDetailLocation"> </h1>
@@ -101,6 +101,7 @@
                     <script src="https://unpkg.com/es6-promise@4.2.4/dist/es6-promise.auto.min.js"></script>
                     <script src="https://unpkg.com/@mapbox/mapbox-sdk/umd/mapbox-sdk.min.js"></script>
                 </div>
+                <h2 id="closeButton" class="closeSearch">Close</h2>
             </div>
         </div>
     </div>
