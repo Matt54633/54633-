@@ -24,7 +24,7 @@ let searchDailyImg = [];
 let searchDailyInfo = [];
 let searchDailyRain = [];
 
-function weather(locationType, x, y, searchString) {
+async function weather(locationType, x, y, searchString) {
     let mapCenter;
     // get x and y coord
     navigator.geolocation.getCurrentPosition(position => {
@@ -98,11 +98,11 @@ function weather(locationType, x, y, searchString) {
         }
     )
     if (locationType == "current") {
-        animate();
+        await animate();
     }
 }
 // function to animate the page
-function animate() {
+async function animate() {
     // wait one second
     setTimeout(() => {
         const fadeElements = document.querySelectorAll('.fadeMiddle');
@@ -377,8 +377,10 @@ function displayAlerts(alertsData) {
     if (alertsData != null) {
         document.getElementById('alertsDisplay').style.display = 'block';
         document.getElementById('alertsDisplayTitle').innerText = alertsData[0].event;
-        let date = new Date(alertsData[0].end * 1000).toUTCString();
-        document.getElementById('alertsDisplayInfo').innerHTML = "From the " + alertsData[0].sender_name + ". A " + alertsData[0].event + " is in place until: " + date + ".";
+        let date = new Date(alertsData[0].end * 1000);
+        date = date.toLocaleString('en-GB');
+        date = date.slice(0, -3);
+        document.getElementById('alertsDisplayInfo').innerHTML = "A " + alertsData[0].event + " is active until: " + date + " - " + alertsData[0].sender_name;
     } else { 
         document.getElementById('alertsDisplay').style.display = 'none'; 
     }
