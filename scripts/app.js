@@ -376,7 +376,11 @@ function displayRain(rainData) {
 function displayAlerts(alertsData) {
     if (alertsData != null) {
         document.getElementById('alertsDisplay').style.display = 'block';
+
+        alertsData[0].event = JSON.stringify(alertsData[0].event).replaceAll('"', '');
+        alertsData[0].event = alertsData[0].event.replace(/(^\w{1})|(\s+\w{1})/g, letter => letter.toUpperCase());
         document.getElementById('alertsDisplayTitle').innerText = alertsData[0].event;
+
         let date = new Date(alertsData[0].end * 1000);
         date = date.toLocaleString('en-GB');
         date = date.slice(0, -3);
