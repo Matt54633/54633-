@@ -45,7 +45,7 @@ async function weather(locationType, x, y, searchString) {
                 document.getElementById(`${locationType}Icon`).src = `https://matt54633.com/weather/weatherIcons/${weather[0]["icon"]}.svg`;
             })
         // get weather data using x and y coordinates
-        fetch(`https://api.openweathermap.org/data/2.5/onecall?lat=${x}&lon=${y}&appid=${apiKey}&units=metric`)
+        fetch(`https://api.openweathermap.org/data/3.0/onecall?lat=${x}&lon=${y}&appid=${apiKey}&units=metric`)
             .then(response => response.json()).then(data => {
                 var { current, hourly, daily, minutely, alerts } = data;
                 // create list items
